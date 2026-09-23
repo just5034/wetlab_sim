@@ -1,0 +1,24 @@
+# This pyproject.toml declares a small Python package called labsim, defines its runtime and dev dependencies,
+# tells pip to use setuptools to build it, and configures setuptools to auto find packages matching labsim*.
+
+
+# The PEP 621 metadata describing my package
+[project]
+name = "labsim"                     # the package name pip will see
+version = "0.1.0"                   # the package version pip will see
+requires-python = ">=3.11"          # the minimum Python version pip will accept
+dependencies = ["websockets>=12"]   # Runtime dependencies pip will install automatically
+
+# Optional "extras" users can install via
+# 'pip install labsim[dev]'. This is useful for development dependencies.
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]    # contains pytest for testing and ruff for linting / formatting
+
+# This tells pip which backend to use to build the project
+# PEP518 requires this for modern packaging.
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["labsim*"]
