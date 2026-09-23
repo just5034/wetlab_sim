@@ -1,7 +1,6 @@
 from labsim.actions import apply
 from labsim.world import World
 
-
 # Run a seeded world for 10 ticks and print each snapshot.
 
 
