@@ -1,4 +1,8 @@
+[![tests](https://github.com/just5034/wetlab_sim/actions/workflows/tests.yml/badge.svg)](https://github.com/just5034/wetlab_sim/actions/workflows/tests.yml)
+
+
 # labsim template
+
 
 Python simulation core plus Unity client, connected by WebSocket. Domain-neutral. Claude Code mentors; Justin codes.
 
