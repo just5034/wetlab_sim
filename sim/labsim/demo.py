@@ -9,8 +9,6 @@ def main() -> None:
     """Build World(seed=1), add "a" at 0.0 then "b" at 10.0, then tick 10
     times, printing the snapshot after each tick."""
 
-    # TODO: Implement using only World, set_value, tick, and print.
-
     example_world = World(seed = 1)
 
     apply(example_world, "set_value", {"name": "a", "value": 0.0})

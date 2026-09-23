@@ -72,7 +72,6 @@ def apply(world: World, action: str, args: dict) -> None:
         ValueError: if `action` is not a key in ACTIONS.
     """
     # Reject unknown names, then look up the function and call it.
-    # Hint: `**some_dict` unpacks a dict into keyword arguments.
 
     if action not in ACTIONS:
         raise ValueError(f"Unknown action: {action}")
