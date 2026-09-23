@@ -1,0 +1,38 @@
+name: tests
+
+on:
+    push:
+    pull_request:
+    workflow_dispatch:
+
+jobs:
+    test:
+        runs-on: ${{ matrix.os }}
+
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [windows-latest, macos-latest]
+                python-version: ["3.11", "3.13"]
+
+        defaults:
+            run:
+                shell: bash
+
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+
+            - name: Install package + dev dependencies
+              run: pip install -e "sim[dev]"
+
+            - name: Run ruff
+              run: ruff check sim
+
+            - name: Run pytest
+              run: pytest sim
