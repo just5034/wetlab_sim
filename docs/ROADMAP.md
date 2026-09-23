@@ -7,14 +7,15 @@ Python venv with pytest and ruff. Unity 6 LTS 3D URP project in `unity/`. Git ig
 Checkpoint: `pytest sim` runs with zero tests; Unity project opens clean.
 Block A Python done 2026-09-21. Block B Unity done 2026-09-22 (Universal 3D, 6000.0.84f1). Block C git done 2026-09-22 (commit 53753b9, pushed). M0 closed 2026-09-22.
 
-## M1 Sim core, no networking [~]
+## M1 Sim core, no networking [x]
 World state, `set_value`, `tick`, seeded RNG, tests. GitHub Actions runs the tests on Windows and macOS.
 Checkpoint: a script ticks the world 10 times and prints the snapshots. CI is green on both OSes.
-M1-A world and M1-B actions done 2026-09-23 (14 tests pass, uncommitted). M1-C demo and M1-D CI remain.
+M1-A world and M1-B actions done 2026-09-23. M1-C demo committed (32a800a). M1-D CI green on Windows and macOS (run 35929303103). M1 closed 2026-09-23.
 
-## M2 Bridge [ ]
+## M2 Bridge [~]
 Python WebSocket server. Unity client that connects and logs snapshots.
 Checkpoint: press Play, snapshots appear in Unity Console.
+Blocks M2-A protocol, M2-B server, M2-C Unity client written and verified 2026-09-23. Not started.
 
 ## M3 Minimal client [ ]
 One scene object showing a value. Click sends `tick`. Value updates from the snapshot.

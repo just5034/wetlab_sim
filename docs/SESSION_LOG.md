@@ -6,28 +6,43 @@ One entry per session, newest first. Written on "save progress". Read the latest
 
 ### Done
 - Rewrote M1 blocks A to D as skeleton handoffs: imports, signatures, docstrings, TODO comments with hints. Provided acceptance tests; 5 tests in `test_actions.py` left for Justin to write. Added "Concepts you will need" lists with doc links.
-- Verified in the scratchpad: skeletons match the doc, skeleton fails all 14 tests cleanly, a reference solution passes all 14 plus ruff, demo first line recorded.
 - Updated `CLAUDE.md` role and rules 3, 3a, 4, 5; `/today` step 5; `/review` step 2.
-- Justin completed M1-A and M1-B. Verified at save: `pytest sim` 14 passed, `ruff check sim` clean, no TODOs remaining.
-- Moved M1-A and M1-B to Done in `docs/WORK_INSTRUCTIONS.md` and updated the M1 status line in `docs/ROADMAP.md`.
+- M1-A and M1-B done by Justin: `pytest sim` 14 passed, `ruff check sim` clean.
+- M1-C done: `sim/labsim/demo.py`, committed as `32a800a`.
+- M1-D done, guided in chat: Justin wrote `.github/workflows/tests.yml` (commit `77c0ea5`). First run failed on ruff, fixed in `84822f0`. Bumped `actions/checkout` and `actions/setup-python` to `@v7` in `3219413` to clear the Node.js 20 deprecation warning. Deliberate failure on branch `ci-check` went red with `assert 3 == 4`; branch deleted locally and remotely. Status badge added to `README.md` (`fbbbd2b`). Run 35929303103 on `main`: 4 green jobs, no warnings.
+- Justin answered the M1-D check questions: the runner starts empty, so checkout is needed; failures on both macOS jobs point at an OS problem. The OS vs Python version vs combination reasoning was explained.
+- M1 closed. Moved M1-C and M1-D to Done in `docs/WORK_INSTRUCTIONS.md`, marked M1 `[x]` in `docs/ROADMAP.md`.
+- Wrote M2 blocks: M2-A `protocol.py` (`make_error`, `handle_message`, 12 tests, 2 for Justin), M2-B `server.py` (`handle_connection`, `make_server`, `serve_forever`, `main`, 3 provided tests over a real connection), M2-C Unity `SimClient.cs` (ClientWebSocket, Console logging, `[ContextMenu("Send tick")]`).
+- Verified M2 in the scratchpad: Python reference passes all 29 tests and ruff; skeletons fail the 15 new tests cleanly with only the expected F401s. C# reference and skeleton both compile against Unity stubs on .NET 8 with C# 9. The reference client ran against the reference server: `t` 0 then 1 with `a` = `-0.7312715117751976`, then 2. Server log clean on client exit. Doc skeleton text checked to match the verified files exactly.
+- Updated `docs/ARCHITECTURE.md` (protocol module, server behaviour, Unity WebSocket decision, JSON parsing moved to open decisions) and `docs/ROADMAP.md` (M2 `[~]`). Added two Machine notes (port 8765 in use, Input System only).
 
 ### Decisions
-- Instruction style is a staff engineer skeleton handoff. Full written-out code (tried earlier the same day) gave away too much. Hints escalate one step at a time on request.
-- Reference solutions live only in the scratchpad, never in the repo or docs.
+- Instruction style is a staff engineer skeleton handoff. Hints escalate one step at a time on request. Reference solutions live only in the scratchpad.
+- Unity WebSocket library: .NET built-in `ClientWebSocket`, not NativeWebSocket. No package install, works on Windows and macOS standalone, resumes on the main thread after `await`. No WebGL, which is not a target.
+- Message handling lives in its own module, `protocol.py`, separate from `server.py`, so every message case is tested without a network.
+- One `World` per server process, shared by all connections. The server sends a snapshot on connect. It binds to `127.0.0.1:8765` and logs with `logging` rather than `print` (Git Bash can buffer `print`).
+- The server treats a client leaving without a close handshake as normal (INFO line). Found during verification: without this, every Unity Play stop printed a traceback.
+- M2-C sends intents from a `[ContextMenu]` instead of a key press, because the project uses the new Input System only and input handling belongs to M3.
+- Unity JSON parsing deferred to M3. `JsonUtility` cannot read the `objects` dictionary.
+
+### Deviations from the instructions
+- `demo.py` calls `apply(...)` instead of `set_value` and `tick` directly. Output is identical.
+- `tests.yml` uses 4 space indentation (the skeleton used 2). Valid and consistent.
+- Action versions are `@v7`, not the `@v4` and `@v5` in the skeleton, to avoid the Node.js 20 deprecation.
 
 ### Open issues
-- While TODOs remain, ruff reports unused imports (F401). Documented in the handoff: never run `ruff check --fix` on an unfinished skeleton.
+- Leftover skeleton comments: the `# TODO` line in `demo.py` `main`, and the "Reject unknown names" and "Hint" comments in `actions.py` `apply`. Delete them when convenient.
+- `world.py`, `actions.py`, and `demo.py` have not been through `/review`.
+- Two M2-C details are unconfirmed on Justin's editor `6000.0.84f1`: the exact menu path `Create > Scripting > MonoBehaviour Script` (a fallback is written into the step), and ClientWebSocket behaviour under Unity's Mono. It was verified on .NET 8 only.
+- Unknown whether Ctrl+C from Git Bash lets Python print `server stopped`. M2-B step 4 asks Justin to report it for Machine notes.
 
 ### Where we stopped
-- M1 Sim core. M1-A and M1-B done and verified. M1-C (demo and commit) and M1-D (GitHub Actions) not started.
-- Nothing committed since `53753b9`. Uncommitted: Justin's four files under `sim/` (`world.py`, `actions.py`, `test_world.py`, `test_actions.py`) plus today's changes to `CLAUDE.md`, `.claude/commands/`, and `docs/`. `.github/` does not exist yet.
-- Neither file has been through `/review` yet.
+- M1 done and pushed. Last commit `fbbbd2b`.
+- M2 blocks written; nothing started. Uncommitted: the four living docs under `docs/`.
 
 ### Next
-- Open Git Bash at the repo root and run `source .venv/Scripts/activate`.
-- Optional: `/review sim/labsim/world.py` and `/review sim/labsim/actions.py` before committing.
-- M1-C step 1: create `sim/labsim/demo.py` from the skeleton. Step 3 commits everything.
-- Then M1-D: `.github/workflows/tests.yml`.
+- Commit the doc changes (`git add docs` then `git commit -m "Docs: close M1, write M2 blocks"`), then push.
+- Start M2-A step 1: create `sim/labsim/protocol.py` from the skeleton.
 
 ## 2026-09-22
 
