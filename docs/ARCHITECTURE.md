@@ -47,7 +47,18 @@ Rules:
 - Only the sim advances time. Unity asks.
 - The world has a seed. Same seed and same intent sequence give the same snapshots.
 
+## Platforms
+
+Targets: Windows and macOS (Intel and Apple Silicon). Decided 2026-09-22. About half the team has Macs, so Mac testing and Mac packaging can happen on a teammate's machine. GitHub Actions is the official cross-platform check: `.github/workflows/tests.yml` runs ruff and pytest on Windows and macOS for every push (added in M1-D). It is also the likely path for automated Mac builds at M4.
+
+What that means for each side:
+- Python: pure Python only, no Windows-only calls. Build paths with `pathlib`, never hardcoded backslashes. Bind the server to `127.0.0.1`. Any future dependency must ship macOS wheels for both `arm64` and `x86_64`.
+- Unity: the Mac player needs the "Mac Build Support (Mono)" module for `6000.0.84f1`. With Mono, Unity can build a Mac app from Windows. IL2CPP for Mac would need a Mac.
+- Packaging the Python side: tools like PyInstaller do not cross-compile. A Mac sim executable must be built on a Mac or on a macOS CI runner (for example GitHub Actions).
+- Distribution: an app built without Apple signing and notarization gets blocked by Gatekeeper. Players can bypass it with right-click Open. Clean distribution needs an Apple Developer account and a Mac.
+- Unity launching an embedded executable on Mac must handle the `.app` bundle path, the executable permission bit, and the quarantine flag.
+
 ## Open decisions
 
-- Unity WebSocket library (NativeWebSocket vs other). Decide at M2.
-- Whether builds bundle Python. Decide later.
+- Unity WebSocket library (NativeWebSocket vs other). Decide at M2. It must support Windows and macOS standalone players.
+- Whether builds bundle Python. Decide later. During development the server is started by hand (`python -m labsim.server`) before pressing Play. Options for a shipped build: (a) freeze the sim into an exe (for example PyInstaller) that Unity launches with `System.Diagnostics.Process` on startup and stops on quit, (b) host the sim on a remote server, (c) embed a Python runtime inside Unity. (a) is the likely default. It needs a separate Python build per OS (see Platforms). (b) avoids per-OS Python packaging entirely. (c) works against the process split and is not preferred. Proven at M4.
