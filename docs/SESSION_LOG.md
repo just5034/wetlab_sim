@@ -14,6 +14,7 @@ One entry per session, newest first. Written on "save progress". Read the latest
 - M1 closed. Moved M1-C and M1-D to Done in `docs/WORK_INSTRUCTIONS.md`, marked M1 `[x]` in `docs/ROADMAP.md`.
 - Wrote M2 blocks: M2-A `protocol.py` (`make_error`, `handle_message`, 12 tests, 2 for Justin), M2-B `server.py` (`handle_connection`, `make_server`, `serve_forever`, `main`, 3 provided tests over a real connection), M2-C Unity `SimClient.cs` (ClientWebSocket, Console logging, `[ContextMenu("Send tick")]`).
 - Verified M2 in the scratchpad: Python reference passes all 29 tests and ruff; skeletons fail the 15 new tests cleanly with only the expected F401s. C# reference and skeleton both compile against Unity stubs on .NET 8 with C# 9. The reference client ran against the reference server: `t` 0 then 1 with `a` = `-0.7312715117751976`, then 2. Server log clean on client exit. Doc skeleton text checked to match the verified files exactly.
+- Justin committed and pushed the docs (`3dd28c1`) and removed the leftover skeleton comments in `demo.py` and the `Hint` line in `actions.py` (`b67f60e`).
 - Updated `docs/ARCHITECTURE.md` (protocol module, server behaviour, Unity WebSocket decision, JSON parsing moved to open decisions) and `docs/ROADMAP.md` (M2 `[~]`). Added two Machine notes (port 8765 in use, Input System only).
 
 ### Decisions
@@ -31,17 +32,18 @@ One entry per session, newest first. Written on "save progress". Read the latest
 - Action versions are `@v7`, not the `@v4` and `@v5` in the skeleton, to avoid the Node.js 20 deprecation.
 
 ### Open issues
-- Leftover skeleton comments: the `# TODO` line in `demo.py` `main`, and the "Reject unknown names" and "Hint" comments in `actions.py` `apply`. Delete them when convenient.
+- `actions.py` `apply` still has the comment "Reject unknown names, then look up the function and call it." It reads fine as a normal comment, so keeping it is Justin's call.
 - `world.py`, `actions.py`, and `demo.py` have not been through `/review`.
 - Two M2-C details are unconfirmed on Justin's editor `6000.0.84f1`: the exact menu path `Create > Scripting > MonoBehaviour Script` (a fallback is written into the step), and ClientWebSocket behaviour under Unity's Mono. It was verified on .NET 8 only.
 - Unknown whether Ctrl+C from Git Bash lets Python print `server stopped`. M2-B step 4 asks Justin to report it for Machine notes.
 
 ### Where we stopped
-- M1 done and pushed. Last commit `fbbbd2b`.
-- M2 blocks written; nothing started. Uncommitted: the four living docs under `docs/`.
+- M1 done and pushed. M2 blocks written and pushed. Last commit `b67f60e`. Working tree clean apart from this save.
+- M2 not started. Next action is M2-A step 1.
 
 ### Next
-- Commit the doc changes (`git add docs` then `git commit -m "Docs: close M1, write M2 blocks"`), then push.
+- Open Git Bash at the repo root and run `source .venv/Scripts/activate`.
+- Commit this save: `git add docs` then `git commit -m "Docs: save progress"`, then push.
 - Start M2-A step 1: create `sim/labsim/protocol.py` from the skeleton.
 
 ## 2026-09-22
