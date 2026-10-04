@@ -15,7 +15,7 @@ M1-A world and M1-B actions done 2026-09-23. M1-C demo committed (32a800a). M1-D
 ## M2 Bridge [~]
 Python WebSocket server. Unity client that connects and logs snapshots.
 Checkpoint: press Play, snapshots appear in Unity Console.
-Blocks M2-A protocol, M2-B server, M2-C Unity client written and verified 2026-09-23. Not started.
+Blocks M2-A protocol, M2-B server, M2-C Unity client written and verified 2026-09-23. M2-A done 2026-10-03 (commit 3a4ef52, CI green). M2-B done 2026-10-03 (commit e1e31d9, CI run 37171861832 green). Next: M2-C.
 
 ## M3 Minimal client [ ]
 One scene object showing a value. Click sends `tick`. Value updates from the snapshot.

@@ -2,6 +2,75 @@
 
 One entry per session, newest first. Written on "save progress". Read the latest entry at session start.
 
+## 2026-10-03 (session 2)
+
+### Done
+- M2-B done by Justin: `sim/labsim/server.py` and `sim/tests/test_server.py`. At his request, walked through every TODO one at a time in chat (he had no async or WebSocket experience). Order: `handle_connection` TODOs 1 to 4, `make_server`, `serve_forever`, `main`.
+- Concepts covered in chat: `await` and coroutines, the "never awaited" warning, `async for` over a connection, closing vs vanishing clients and `ConnectionClosedError`, `logging` (levels, named loggers, stderr, no file by default, `filename=` option), callbacks and closures, `async with` starting and stopping the server, async spreading upward to `asyncio.run`, running several coroutines with `asyncio.TaskGroup` or `gather` instead of several `asyncio.run` calls.
+- Justin answered the per-TODO check questions in chat: `make_server` runs once and `handler` once per client; the world is shared because `World(...)` is built once in `main` and passed by reference; a missing `await` on `server.serve_forever()` ends the `async with` and stops the server; `serve_forever` is async because it awaits; Ctrl+C exits the `async with`, which frees the port; without the `try/except`, the `KeyboardInterrupt` traceback runs through `main`, `asyncio.run`, and `serve_forever`.
+- Verified by Claude: `pytest sim` 29 passed, `ruff check sim` all checks passed.
+- Committed `e1e31d9` "websocket server and tests" and pushed. CI run 37171861832 green.
+- Added a Machine note: Ctrl+C on the server in Git Bash shuts down cleanly.
+- Moved M2-B to Done in `docs/WORK_INSTRUCTIONS.md`. Updated the M2 status line in `docs/ROADMAP.md`.
+
+### Decisions
+- Snapshot send moved inside the `try` in `handle_connection`, so a client that vanishes before the snapshot is logged at INFO instead of a traceback. Cost is a slightly wider `try`, acceptable because the `except` only catches `ConnectionClosedError`.
+- For new territory, guide one TODO at a time in chat: why, concepts, steps, checkpoint, check questions. Then wait for Justin's code before the next TODO.
+
+### Deviations from the instructions
+- Snapshot send is inside the `try` (see Decisions), with a comment in the code.
+- Commit message was "websocket server and tests", not "M2: protocol and websocket server".
+- Justin removed the `# Provided` markers from `sim/tests/test_protocol.py` (committed in `e1e31d9`). Each removal left three blank lines between tests instead of two. Default ruff rules do not flag it.
+- `server.py` style: blank lines inside `try`, `except`, and loop bodies, a leading space in the log format `" <- %s"`, extra blank lines before `if __name__`, and single quotes in `set_value(world=world, name='a', value=0.0)`. All pass `ruff check`. `ruff format` would change most of them.
+
+### Open issues
+- Docs from the first 2026-10-03 save were never committed. This save's doc changes are uncommitted too.
+- M2-B "Check your understanding" questions unanswered (listed in the Done entry in `docs/WORK_INSTRUCTIONS.md`). M2-A questions still unanswered.
+- `protocol.py`, `server.py`, `world.py`, `actions.py`, and `demo.py` have not been through `/review`.
+- Carried over: M2-C menu path `Create > Scripting > MonoBehaviour Script` and ClientWebSocket under Unity Mono are unconfirmed on `6000.0.84f1`.
+
+### Where we stopped
+- M2-B complete, committed, pushed, CI green.
+- Next action is M2-C step 1 (set the code editor in Unity), then step 3 `SimClient.cs` from the skeleton.
+
+### Next
+- Commit the docs: `git add docs` then `git commit -m "Docs: save progress"`, then push.
+- Optional: answer the M2-B check questions.
+- Start M2-C. Walk through the C# TODOs one at a time, the same way as `server.py`. C# `async`/`await` and `ClientWebSocket` are new to Justin.
+
+## 2026-10-03
+
+### Done
+- M2-A done by Justin: `sim/labsim/protocol.py` and `sim/tests/test_protocol.py`, including his two tests. `pytest sim` 26 passed, `ruff check sim` clean (verified by Claude).
+- Committed `3a4ef52` "M2-A: protocol.py and tests" and pushed. CI run 37108975814 green.
+- An accidental edit to `docs/WORK_INSTRUCTIONS.md` (deleted `# TODO: write this test` line) was restored before the commit.
+- Discussion, no code: message based vs streamed protocols. Framing (messages vs byte stream) and initiation (request/reply vs push) are separate axes. Our protocol is message based, request/reply. Running the sim on its own clock would add server push and stay message based. At larger scale the fixes are deltas, a lower send rate with interpolation, sending only what Unity needs, binary encoding (MessagePack, Protocol Buffers), and compression. All of these stay message based. A byte stream only fits a single huge transfer.
+- Explained `ruff check sim` (lint, what CI runs) vs `ruff format --check sim` / `--diff` / `ruff format sim` (formatter, not in CI).
+- Moved M2-A to Done in `docs/WORK_INSTRUCTIONS.md`. Updated the M2 status line in `docs/ROADMAP.md`.
+
+### Decisions
+- Keep the protocol message based. Add server push later if the sim needs its own clock. No byte stream. Optimize only after measuring. Python and Unity share `127.0.0.1`, so Python step time or Unity JSON parsing will likely limit first, not bandwidth.
+- Formatter (`ruff format`) stays optional and out of CI for now.
+
+### Deviations from the instructions
+- `protocol.py` has an extra header comment and a blank line between each `def` and its docstring. The tests do the same. `ruff format` would remove the blank lines.
+- `test_bad_argument_is_an_error_and_world_unchanged` compares against a literal dict with the exact message `steps must be at least 1` instead of `make_error(...)` or checking only `"type"`. It passes, but it couples the test to the wording in `actions.py`.
+- `protocol.py` has no newline at the end of the file. Default ruff rules do not flag it.
+
+### Open issues
+- `protocol.py`, `world.py`, `actions.py`, and `demo.py` have not been through `/review`.
+- M2-A "Check your understanding" questions unanswered (listed in the Done entry in `docs/WORK_INSTRUCTIONS.md`).
+- Carried over: M2-C menu path `Create > Scripting > MonoBehaviour Script` and ClientWebSocket under Unity Mono are unconfirmed on `6000.0.84f1`. Ctrl+C behaviour from Git Bash for the server is unknown (M2-B step 4 asks).
+
+### Where we stopped
+- M2-A complete, committed, pushed, CI green. Working tree clean before this save.
+- Next action is M2-B step 1: create `sim/labsim/server.py` from the skeleton.
+
+### Next
+- Commit this save: `git add docs` then `git commit -m "Docs: save progress"`, then push.
+- Optional: answer the two M2-A check questions; run `/review sim/labsim/protocol.py`.
+- Start M2-B step 1.
+
 ## 2026-09-23
 
 ### Done
