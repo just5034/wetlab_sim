@@ -13,12 +13,12 @@ def intent(action: str, args: dict | None = None) -> str:
     return json.dumps(message)
 
 
-# Provided
+
 def test_make_error_shape():
     assert make_error("boom") == {"type": "error", "message": "boom"}
 
 
-# Provided
+
 def test_tick_intent_returns_snapshot():
     world = World()
     reply = handle_message(world, intent("tick", {"steps": 2}))
@@ -26,20 +26,20 @@ def test_tick_intent_returns_snapshot():
     assert reply == world.snapshot()
 
 
-# Provided
+
 def test_args_can_be_left_out():
     world = World()
     reply = handle_message(world, intent("tick"))
     assert reply["t"] == 1
 
 
-# Provided
+
 def test_invalid_json_is_an_error():
     world = World()
     assert handle_message(world, "{not json") == make_error("invalid JSON")
 
 
-# Provided
+
 @pytest.mark.parametrize(
     "text",
     [
@@ -55,7 +55,7 @@ def test_not_an_intent_is_an_error(text):
     assert handle_message(world, text) == make_error("expected an intent")
 
 
-# Provided
+
 def test_unknown_action_is_an_error_and_world_unchanged():
     world = World()
     reply = handle_message(world, intent("fly"))
