@@ -2,6 +2,38 @@
 
 One entry per session, newest first. Written on "save progress". Read the latest entry at session start.
 
+## 2026-10-03 (session 3)
+
+### Done
+- Explained loopback: `127.0.0.1` is reserved to mean "this computer" on every machine, traffic never leaves the machine, other computers cannot reach a server bound there, and the LAN address (`ipconfig`) is different. `localhost` usually resolves to it.
+- Started M2-C as a one-TODO-at-a-time walkthrough in chat (Justin is new to C#). Gave a C# vs Python orientation table (`using`, classes, braces, `;`, types before names, `public`/`private`, `///` doc comments, `throw`, compile-time type checking).
+- Steps 2, 3, and 4 done by Justin: `unity/client/Assets/Scripts/SimClient.cs` created from the skeleton (verified identical before editing), `SimClient` GameObject added to `SampleScene` with the script attached.
+- `BuildIntent` done by Justin: builds the string in a local `intent` with `+` and `\"`, then returns it. Checked in Play mode with a temporary `Debug.Log(BuildIntent("tick", "{\"steps\": 1}"))` at the top of `Start`. Console showed exactly `{"type": "intent", "action": "tick", "args": {"steps": 1}}`.
+- Debugged on the way: `CS0104 'Debug' is an ambiguous reference` because VS Code had added `using System.Diagnostics;`. Justin deleted it. Also caught the leftover `throw` above his `return` in `BuildIntent` (would have thrown, `CS0162` unreachable code). Fixed.
+- Explained the Unity stack trace under a log line, including the compiler-generated `<Start>d__3:MoveNext` names for async methods.
+- `OnDestroy` walkthrough was presented in chat (Unity calls methods by name, the Editor is one long-lived process, `null` and `NullReferenceException`, `?.`, `Cancel` then `Dispose`, `Dispose` closes abruptly so the server logs "client left without closing"). Justin has not written it yet.
+
+### Decisions
+- M2-C goes one TODO at a time in chat, in the doc's order: `BuildIntent`, `OnDestroy`, `ReceiveMessage`, `ReceiveLoop`, `Start`, `SendIntent`, `SendTick`.
+- Use a temporary `Debug.Log` in `Start` as a checkpoint for pieces that cannot run on their own yet. Delete it afterwards.
+
+### Deviations from the instructions
+- `BuildIntent` uses a local variable and two blank lines before the closing brace. Works the same.
+
+### Open issues
+- Temporary `Debug.Log(BuildIntent(...))` line is still at the top of `Start`, with a blank line above it. Delete it before continuing.
+- Nothing from M2-C is committed. Untracked: `Assets/Scripts.meta`, `Assets/Scripts/` (`SimClient.cs` and its `.meta`), `ProjectSettings/SceneTemplateSettings.json`. Modified: `Assets/Scenes/SampleScene.unity`.
+- `BuildIntent` check questions unanswered: why it is `static`; what a missing `\` does to the whole script.
+- Carried over: M2-B and M2-A check questions; no `/review` of the Python files.
+
+### Where we stopped
+- M2-C step 5, `BuildIntent` done. Next TODO is `OnDestroy`. Re-present its walkthrough briefly at the start of next session, since Justin read it but did not start.
+
+### Next
+- Commit these docs: `git add docs`, `git commit -m "Docs: save progress"`, `git push`.
+- Delete the temporary `Debug.Log` line in `Start`.
+- `OnDestroy`, then `ReceiveMessage` (bytes, buffers, `do`/`while`, `MemoryStream`), one TODO at a time.
+
 ## 2026-10-03 (session 2)
 
 ### Done

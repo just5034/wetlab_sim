@@ -2,7 +2,7 @@
 
 Rewritten by `/today` each session. Finished blocks move to "Done".
 
-Milestone: M2 Bridge. Blocks M2-A to M2-C written 2026-09-23. M2-A and M2-B done 2026-10-03. Start at M2-C step 1.
+Milestone: M2 Bridge. Blocks M2-A to M2-C written 2026-09-23. M2-A and M2-B done 2026-10-03. M2-C in progress: steps 2 to 4 done, step 5 `BuildIntent` done. Next: step 5 `OnDestroy`.
 
 Why M2: the M1 sim only runs inside Python. Unity is a separate program in a different language and cannot call Python functions. M2 builds the bridge: a small server that holds the one true world and speaks JSON over a WebSocket, and a Unity script that connects and prints what it hears. Nothing is drawn yet. Keeping M2 to "messages go back and forth and show up in the Console" means that when M3 adds visuals, any bug is in the drawing, not the plumbing. Without the bridge, Unity would have to copy the rules in C#, and two copies of the same rules always drift apart.
 
@@ -22,6 +22,8 @@ Recorded so you do not re-check these every session.
 - Justin has a separate Unity project also named `client` elsewhere. In Unity Hub, tell them apart by path.
 - The sim server uses port 8765. `[Errno 10048]` on Windows or `[Errno 48] Address already in use` on macOS means another server is still running. Stop it with Ctrl+C in its terminal.
 - Ctrl+C on `python -m labsim.server` in Git Bash on Windows shuts down cleanly. It prints `server closing`, `server closed`, then `INFO:__main__:server stopped`, with no traceback (checked 2026-10-03).
+- VS Code's C# extension can auto-insert `using System.Diagnostics;` when you type `Debug`. That makes `Debug` ambiguous with `UnityEngine.Debug` (error `CS0104`). Delete the stray `using` line.
+- Unity created `unity/client/ProjectSettings/SceneTemplateSettings.json` (untracked) when the scene was edited. It is a normal Unity settings file. Commit it with M2-C.
 - Unity's Active Input Handling is the new Input System only (`activeInputHandler: 1`). The old `Input.GetKeyDown` API throws in this project.
 
 ## How these handoffs work
@@ -41,6 +43,8 @@ Rules of thumb:
 - When a file passes, run `/review sim/labsim/<file>.py` for feedback on style and correctness.
 
 ## Block M2-C: Unity client
+
+Progress (2026-10-03): steps 2, 3, and 4 done (`Assets/Scripts/SimClient.cs` created from the skeleton, `SimClient` GameObject in `SampleScene`). Step 1 not confirmed, but VS Code with the C# extension is in use. Step 5: `BuildIntent` done and checked in Play mode. A temporary `Debug.Log(BuildIntent(...))` line is still at the top of `Start` and must be deleted. Next TODO: `OnDestroy`, then `ReceiveMessage`, `ReceiveLoop`, `Start`, `SendIntent`, `SendTick`. Nothing committed yet.
 
 Why: this is Unity's end of the bridge. A C# script on an empty GameObject connects when you press Play, logs everything the sim sends into the Console, and can send a tick. Nothing is drawn yet; drawing is M3. This is your first C# and your first Unity script. Keeping it to Console output means you learn C# and the Unity script lifecycle without also fighting scenes and UI. It also proves the chosen WebSocket approach works on your machine before anything depends on it.
 
