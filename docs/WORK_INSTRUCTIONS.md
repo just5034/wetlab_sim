@@ -44,7 +44,7 @@ Rules of thumb:
 
 ## Block M2-C: Unity client
 
-Progress (2026-10-03): steps 2, 3, and 4 done (`Assets/Scripts/SimClient.cs` created from the skeleton, `SimClient` GameObject in `SampleScene`). Step 1 not confirmed, but VS Code with the C# extension is in use. Step 5: `BuildIntent` done and checked in Play mode. A temporary `Debug.Log(BuildIntent(...))` line is still at the top of `Start` and must be deleted. Next TODO: `OnDestroy`, then `ReceiveMessage`, `ReceiveLoop`, `Start`, `SendIntent`, `SendTick`. Nothing committed yet.
+Progress (2026-10-03): steps 2, 3, and 4 done (`Assets/Scripts/SimClient.cs` created from the skeleton, `SimClient` GameObject in `SampleScene`). Step 1 not confirmed, but VS Code with the C# extension is in use. Step 5: `BuildIntent` done and checked in Play mode. The temporary `Debug.Log(BuildIntent(...))` line has been deleted (confirmed 2026-10-05). Next TODO: `OnDestroy`, then `ReceiveMessage`, `ReceiveLoop`, `Start`, `SendIntent`, `SendTick`. Nothing committed yet.
 
 Why: this is Unity's end of the bridge. A C# script on an empty GameObject connects when you press Play, logs everything the sim sends into the Console, and can send a tick. Nothing is drawn yet; drawing is M3. This is your first C# and your first Unity script. Keeping it to Console output means you learn C# and the Unity script lifecycle without also fighting scenes and UI. It also proves the chosen WebSocket approach works on your machine before anything depends on it.
 
