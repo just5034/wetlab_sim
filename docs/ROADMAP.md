@@ -12,10 +12,10 @@ World state, `set_value`, `tick`, seeded RNG, tests. GitHub Actions runs the tes
 Checkpoint: a script ticks the world 10 times and prints the snapshots. CI is green on both OSes.
 M1-A world and M1-B actions done 2026-09-23. M1-C demo committed (32a800a). M1-D CI green on Windows and macOS (run 35929303103). M1 closed 2026-09-23.
 
-## M2 Bridge [~]
+## M2 Bridge [x]
 Python WebSocket server. Unity client that connects and logs snapshots.
 Checkpoint: press Play, snapshots appear in Unity Console.
-Blocks M2-A protocol, M2-B server, M2-C Unity client written and verified 2026-09-23. M2-A done 2026-10-03 (commit 3a4ef52, CI green). M2-B done 2026-10-03 (commit e1e31d9, CI run 37171861832 green). M2-C in progress: script attached, `BuildIntent` done. Next: `OnDestroy`.
+Blocks M2-A protocol, M2-B server, M2-C Unity client written and verified 2026-09-23. M2-A done 2026-10-03 (commit 3a4ef52, CI green). M2-B done 2026-10-03 (commit e1e31d9, CI run 37171861832 green). M2-C done 2026-10-05 (commit ff1996c, CI run 37401893559 green): Play shows the snapshot in the Console, Send tick advances `t`. M2 closed 2026-10-05. Next: M3, blocks not yet written.
 
 ## M3 Minimal client [ ]
 One scene object showing a value. Click sends `tick`. Value updates from the snapshot.

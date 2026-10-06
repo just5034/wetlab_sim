@@ -2,7 +2,7 @@
 
 Rewritten by `/today` each session. Finished blocks move to "Done".
 
-Milestone: M2 Bridge. Blocks M2-A to M2-C written 2026-09-23. M2-A and M2-B done 2026-10-03. M2-C in progress: steps 2 to 4 done, step 5 `BuildIntent` done. Next: step 5 `OnDestroy`.
+Milestone: M2 Bridge closed 2026-10-05. M2-A, M2-B, and M2-C all done. Next: M3 Minimal client. Its blocks are not written yet. Run `/today` to write them.
 
 Why M2: the M1 sim only runs inside Python. Unity is a separate program in a different language and cannot call Python functions. M2 builds the bridge: a small server that holds the one true world and speaks JSON over a WebSocket, and a Unity script that connects and prints what it hears. Nothing is drawn yet. Keeping M2 to "messages go back and forth and show up in the Console" means that when M3 adds visuals, any bug is in the drawing, not the plumbing. Without the bridge, Unity would have to copy the rules in C#, and two copies of the same rules always drift apart.
 
@@ -23,7 +23,9 @@ Recorded so you do not re-check these every session.
 - The sim server uses port 8765. `[Errno 10048]` on Windows or `[Errno 48] Address already in use` on macOS means another server is still running. Stop it with Ctrl+C in its terminal.
 - Ctrl+C on `python -m labsim.server` in Git Bash on Windows shuts down cleanly. It prints `server closing`, `server closed`, then `INFO:__main__:server stopped`, with no traceback (checked 2026-10-03).
 - VS Code's C# extension can auto-insert `using System.Diagnostics;` when you type `Debug`. That makes `Debug` ambiguous with `UnityEngine.Debug` (error `CS0104`). Delete the stray `using` line.
-- Unity created `unity/client/ProjectSettings/SceneTemplateSettings.json` (untracked) when the scene was edited. It is a normal Unity settings file. Commit it with M2-C.
+- Unity created `unity/client/ProjectSettings/SceneTemplateSettings.json` when the scene was edited. It is a normal Unity settings file. Committed in `ff1996c`.
+- `System.Net.WebSockets.ClientWebSocket` works under Unity's Mono on `6000.0.84f1` in the Editor (confirmed 2026-10-05). Connect, receive, send, cancel, and dispose all behave as on .NET 8.
+- Server log lines start with `INFO:__main__:`, not `INFO:labsim.server:`, because `python -m labsim.server` runs the module as `__main__` and the logger uses `__name__`.
 - Unity's Active Input Handling is the new Input System only (`activeInputHandler: 1`). The old `Input.GetKeyDown` API throws in this project.
 
 ## How these handoffs work
@@ -42,244 +44,46 @@ Rules of thumb:
 - Stuck for more than 15 minutes on one TODO? Ask me for the next hint on that TODO. Hints come in steps, from a nudge to nearly the answer, so you only take as much as you need.
 - When a file passes, run `/review sim/labsim/<file>.py` for feedback on style and correctness.
 
-## Block M2-C: Unity client
+## Next: M3 Minimal client
 
-Progress (2026-10-03): steps 2, 3, and 4 done (`Assets/Scripts/SimClient.cs` created from the skeleton, `SimClient` GameObject in `SampleScene`). Step 1 not confirmed, but VS Code with the C# extension is in use. Step 5: `BuildIntent` done and checked in Play mode. The temporary `Debug.Log(BuildIntent(...))` line has been deleted (confirmed 2026-10-05). Next TODO: `OnDestroy`, then `ReceiveMessage`, `ReceiveLoop`, `Start`, `SendIntent`, `SendTick`. Nothing committed yet.
+Not written yet. `/today` writes the M3 blocks at the start of the next session. M3 is the first block with real C# logic beyond plumbing (JSON parsing, a scene object, input), so every C# TODO is walked through in chat per `CLAUDE.md` rule 12.
 
-Why: this is Unity's end of the bridge. A C# script on an empty GameObject connects when you press Play, logs everything the sim sends into the Console, and can send a tick. Nothing is drawn yet; drawing is M3. This is your first C# and your first Unity script. Keeping it to Console output means you learn C# and the Unity script lifecycle without also fighting scenes and UI. It also proves the chosen WebSocket approach works on your machine before anything depends on it.
+## C# and Unity already covered
 
-Goal: press Play, and snapshots from Python appear in the Unity Console. Send a tick from the Inspector and watch `t` go up.
+Rule 12 in `CLAUDE.md`: anything not on this list gets a full walkthrough in chat (why, background, the code, line by line, checkpoint, check questions). Anything on this list can be referenced briefly. Add to it after each C# TODO.
 
-Concepts you will need:
-- **C# compared to Python.** Braces `{ }` instead of indentation, and `;` ends each statement. Types come before names: `string url`. `using X;` is like `import`. `//` starts a comment, and `///` starts a doc comment, the C# version of a docstring. Tour: https://learn.microsoft.com/dotnet/csharp/tour-of-csharp/
-- **GameObject and component.** Everything in a Unity scene is a GameObject. What it does comes from the components attached to it. Your script becomes a component once you attach it.
-- **MonoBehaviour.** The base class for scripts you attach to GameObjects. Unity calls certain methods by name at set moments: `Start` runs once when Play begins, and `OnDestroy` runs when the object goes away, which includes leaving Play mode. Docs: https://docs.unity3d.com/Manual/class-MonoBehaviour.html and the order of calls: https://docs.unity3d.com/Manual/execution-order.html
-- **Attributes.** Tags in square brackets that other code reads, similar to Python decorators. `[SerializeField]` shows a private field in the Inspector so you can edit it there. `[ContextMenu("Send tick")]` adds a menu item to the component that runs that method.
-- **`async`, `await`, and `Task` in C#.** The same idea as in Python. A `Task` is the result of an async method; `Task<string>` finishes with a string. `async void` is only for methods that nobody awaits, like Unity's `Start` or a context menu item. In Unity, code after an `await` continues on the main thread, so calling `Debug.Log` there is safe.
-- **`ClientWebSocket`.** The WebSocket client built into .NET, in `System.Net.WebSockets`. Unity ships it, so there is nothing to install. Docs: https://learn.microsoft.com/dotnet/api/system.net.websockets.clientwebsocket
-- **Bytes and UTF-8.** The network carries bytes, not text. `Encoding.UTF8` converts text to bytes and back. A `MemoryStream` is a growable byte container, used here to collect the pieces of one message.
-- **`CancellationToken`.** A stop signal you pass to operations that wait. Cancelling its `CancellationTokenSource` makes a waiting `ReceiveAsync` give up. Without it, the receive keeps waiting after you leave Play mode.
-- **`null` and `?.`.** `null` is C#'s `None`. `x?.Method()` calls `Method` only when `x` is not `null`.
-- **`Debug.Log` and `Debug.LogWarning`.** Write a white or yellow line to the Unity Console.
+Covered in M2-C (2026-10-03 to 2026-10-05), all in `unity/client/Assets/Scripts/SimClient.cs`:
+- C# vs Python basics: `using` as import, braces instead of indentation, `;` ends statements, types before names, `public` / `private`, `///` doc comments vs `//` comments, case sensitivity (`cancel` vs `Cancel`).
+- Classes and fields vs local variables. Fields start as `null`. Locals must be assigned before use (`CS0165`). Shadowing: `var x = ...` in a method makes a new local that hides the field. Assign a field with `x = ...`.
+- `string` concatenation with `+`, escaped quotes `\"` inside strings (`BuildIntent`).
+- `static` methods: use no fields, called by name.
+- `void`, `return;`, `return null;`, `return value;`.
+- `null`, `NullReferenceException`, the null-conditional `?.`.
+- `if`, `==`, `!=`, `!`, `||` with short-circuit order (`socket == null` first).
+- `while` and `do { } while (...);`, and why `do`/`while` fits "read, then check".
+- Arrays: `new byte[8192]`, `byte[]`, `var`.
+- Bytes and UTF-8: `Encoding.UTF8.GetBytes` and `GetString`. `MemoryStream`, `stream.Write(buffer, 0, count)`, `ToArray()`.
+- `using var` for automatic cleanup (like Python `with`).
+- `async`, `await`, `Task`, `Task<string>`, `async void` (only for methods Unity calls: `Start`, context menu items). Missing `await` gives `CS0029`.
+- `try` / `catch (Exception e)`, `e.Message`.
+- `new` to create objects. `new Uri(url)`.
+- `CancellationTokenSource`, `.Token`, `.Cancel()`, `.IsCancellationRequested`. Cancel before Dispose.
+- `ClientWebSocket`: `ConnectAsync`, `ReceiveAsync` (+ `WebSocketReceiveResult`: `MessageType`, `Count`, `EndOfMessage`), `SendAsync` (four arguments), `State` / `WebSocketState.Open`, `Dispose()`. `ArraySegment<byte>` as packaging.
+- WebSocket close handshake vs abrupt disconnect ("client left without closing").
+- Unity: `MonoBehaviour`, Unity calls `Start` and `OnDestroy` by name, `[SerializeField]`, `[ContextMenu]` and the Inspector ⋮ menu, `Debug.Log` / `Debug.LogWarning`, reading the Console and stack traces (including `<Start>d__N:MoveNext`), Play and stop, temporary `Debug.Log` as a checkpoint, compile errors `CS0104`, `CS0162`, `CS1002`.
+- Unity editor: Create a folder and script in the Project window, create an empty GameObject, attach a script, `Window > General > Console`, `.meta` files must be committed with their asset.
 
-### Step 1. Set your code editor
-
-In Unity: `Edit > Preferences > External Tools > External Script Editor`, choose `Visual Studio Code` (on a Mac: `Unity > Settings > External Tools`). In VS Code, install the extension "Unity" by Microsoft. It pulls in C# Dev Kit.
-
-Why: you get autocomplete and red underlines for C# mistakes before Unity even compiles. If you use a different editor, pick it here instead.
-
-### Step 2. Create a Scripts folder
-
-In the Project window, right-click `Assets`, then `Create > Folder`, and name it `Scripts`.
-
-Why: keeps your code apart from the template's assets.
-
-### Step 3. Create `SimClient.cs` from this skeleton
-
-Right-click `Scripts`, then `Create > Scripting > MonoBehaviour Script` (if your menu has no `Scripting` entry, use `Create > MonoBehaviour Script`). Name it exactly `SimClient` and press Enter. Double-click it to open it in your editor, replace everything with the skeleton, and save.
-
-Why: Unity matches the file name to the class name. `SimClient.cs` must contain `class SimClient`, or Unity cannot attach it.
-
-```csharp
-using System;
-using System.IO;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using UnityEngine;
-
-/// <summary>
-/// Connects to the Python sim over a WebSocket, logs every message it
-/// receives to the Console, and sends intents. It holds no sim state.
-/// </summary>
-public class SimClient : MonoBehaviour
-{
-    /// <summary>Server address. Editable in the Inspector.</summary>
-    [SerializeField] private string url = "ws://127.0.0.1:8765";
-
-    /// <summary>The connection. Null until Start runs.</summary>
-    private ClientWebSocket socket;
-
-    /// <summary>Cancelled in OnDestroy to stop any receive still waiting.</summary>
-    private CancellationTokenSource cancel;
-
-    /// <summary>
-    /// Unity calls this once when Play starts. Create `cancel` and `socket`,
-    /// connect to `url`, log "Connected to " + url, then run ReceiveLoop
-    /// until the connection ends.
-    /// If anything throws: stay silent when `cancel` has been cancelled
-    /// (Play mode is stopping). Otherwise log a warning that includes the
-    /// exception message and the words "Is the server running?".
-    /// </summary>
-    private async void Start()
-    {
-        // TODO 1: Create a new CancellationTokenSource and a new ClientWebSocket.
-        // TODO 2: Inside try: await socket.ConnectAsync(new Uri(url), cancel.Token),
-        //   log the connected line with Debug.Log, then await ReceiveLoop(cancel.Token).
-        // TODO 3: catch (Exception e) { ... }
-        // Hint: cancel.IsCancellationRequested tells you whether Play mode is
-        //   stopping. Use Debug.LogWarning for real failures.
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// While the socket is open, receive one whole message at a time and log
-    /// it (format in the TODO below). When ReceiveMessage returns null, log
-    /// "Server closed the connection" and return.
-    /// </summary>
-    private async Task ReceiveLoop(CancellationToken token)
-    {
-        // TODO: while (socket.State == WebSocketState.Open) { ... }
-        //   Log each message as "<- " + message, so replies are easy to spot.
-        // Hint: string message = await ReceiveMessage(token);
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Receive one complete text message and return it as a string.
-    /// A message can arrive in several pieces (frames). Keep reading until
-    /// a piece arrives with EndOfMessage set to true.
-    /// Returns null if the server sent a close message instead.
-    /// </summary>
-    private async Task<string> ReceiveMessage(CancellationToken token)
-    {
-        // TODO 1: var buffer = new byte[8192]; plus a MemoryStream to collect the pieces.
-        // TODO 2: Read pieces in a loop:
-        //   var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
-        //   If result.MessageType is WebSocketMessageType.Close, return null.
-        //   Otherwise write result.Count bytes from buffer into the stream.
-        //   Stop after the piece where result.EndOfMessage is true.
-        // Hint: a do { ... } while (condition); loop always runs at least once.
-        // TODO 3: Return Encoding.UTF8.GetString(stream.ToArray()).
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Build intent JSON text. For example, BuildIntent("tick", "{\"steps\": 1}")
-    /// returns {"type": "intent", "action": "tick", "args": {"steps": 1}}
-    /// `argsJson` must already be JSON object text.
-    /// </summary>
-    public static string BuildIntent(string action, string argsJson)
-    {
-        // TODO: Join the pieces into one string with +.
-        // Hint: inside a C# string literal, a double quote is written \"
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Send one intent. If not connected, log the warning "Not connected" and
-    /// return. Otherwise log the JSON (format in the TODOs below), then send
-    /// it as one UTF-8 text message. Log before sending, so the Console
-    /// shows the request above its reply.
-    /// </summary>
-    public async Task SendIntent(string action, string argsJson)
-    {
-        // TODO 1: Check that socket is not null and socket.State is WebSocketState.Open.
-        // TODO 2: Build the JSON and log it as "-> " + json.
-        //   Then turn it into bytes with Encoding.UTF8.GetBytes.
-        // TODO 3: await socket.SendAsync(new ArraySegment<byte>(bytes),
-        //   WebSocketMessageType.Text, true, cancel.Token);
-        //   The true means "this is the last piece of the message".
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Send a tick of one step. In Play mode, run it from this component's
-    /// three-dot menu in the Inspector.
-    /// </summary>
-    [ContextMenu("Send tick")]
-    private async void SendTick()
-    {
-        // TODO: await SendIntent with action "tick" and args {"steps": 1}.
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Unity calls this when Play mode stops. Cancel any receive still
-    /// waiting, then dispose the socket. Both fields may still be null.
-    /// </summary>
-    private void OnDestroy()
-    {
-        // TODO: Cancel `cancel`, then Dispose `socket`.
-        // Hint: x?.Method() calls Method only when x is not null.
-        throw new NotImplementedException();
-    }
-}
-```
-
-Back in Unity, wait for the compile spinner at the bottom right to finish. Yellow warnings such as `CS1998` or `CS0169` are expected while TODOs remain, like ruff's `F401`. A red error means a typo.
-
-### Step 4. Put the script in the scene
-
-1. Open `Assets/Scenes/SampleScene` (double-click it in the Project window).
-2. In the Hierarchy, click `+`, then `Create Empty`. Right-click the new `GameObject`, choose `Rename`, and type `SimClient`.
-3. With it selected, click `Add Component` in the Inspector, type `SimClient`, and pick your script.
-4. `File > Save` (Ctrl+S).
-
-Why: a script only runs when it is attached to something in the scene.
-
-### Step 5. Fill in the TODOs
-
-Suggested order: `BuildIntent`, `OnDestroy`, `ReceiveMessage`, `ReceiveLoop`, `Start`, `SendIntent`, `SendTick`.
-
-Why: this order starts with the simplest pieces. `Start` depends on `ReceiveLoop`, which depends on `ReceiveMessage`. Save after each one, and check that the Console shows no red errors.
-
-### Step 6. Run it
-
-1. In Git Bash: `source .venv/Scripts/activate`, then `python -m labsim.server`. Leave it running.
-2. In Unity, open the Console with `Window > General > Console`, then press Play.
-
-Expected in the Console:
-
-```
-Connected to ws://127.0.0.1:8765
-<- {"type": "snapshot", "t": 0, "objects": {"a": {"value": 0.0}}}
-```
-
-3. With Play still running, select `SimClient` in the Hierarchy. In the Inspector, click the three-dot menu on the right of the `Sim Client (Script)` header, then `Send tick`. Expected:
-
-```
--> {"type": "intent", "action": "tick", "args": {"steps": 1}}
-<- {"type": "snapshot", "t": 1, "objects": {"a": {"value": -0.7312715117751976}}}
-```
-
-The Git Bash window shows `INFO:__main__:<- {"type": "intent", "action": "tick", "args": {"steps": 1}}`.
-
-4. Stop Play. The server logs `INFO:websockets.server:connection closed` and then `INFO:__main__:client left without closing`, with no traceback.
-5. Stop the server with Ctrl+C and press Play again. Within a few seconds, a yellow warning appears that ends with "Is the server running?". Stop Play.
-
-Why: that is the whole bridge, both directions, plus the two ways a connection can end. The value `-0.7312715117751976` is the same first number as in your demo, because the seed is the same.
-
-### Step 7. Commit and push
-
-```bash
-git status
-git add unity
-git commit -m "M2: Unity SimClient logs snapshots"
-git push
-```
-
-`git status` should list `Assets/Scripts.meta`, `Assets/Scripts/SimClient.cs`, `Assets/Scripts/SimClient.cs.meta`, and `Assets/Scenes/SampleScene.unity`. Unity may also have touched a file under `ProjectSettings` or `Packages`. Tell me before committing anything else you do not recognize.
-
-Why the `.meta` files matter: each one holds the ID Unity uses for that asset. The scene refers to your script by that ID, not by name. Commit a script without its `.meta` and, on a teammate's machine, the scene shows "Missing script". Always commit a file and its `.meta` together.
-
-Checkpoint: step 6 output matches exactly, stopping Play leaves no traceback in the server window, and the push is on GitHub.
-
-Design notes:
-- The client uses .NET's built-in `ClientWebSocket` instead of a package such as NativeWebSocket. It ships with Unity and works in Windows and macOS standalone builds. It needs no package install, and after `await`, code resumes on Unity's main thread, so no message queue is needed. The trade-off is that it does not work in WebGL builds, which are not a target.
-- The client logs raw text and does not parse snapshots yet. Unity's built-in `JsonUtility` cannot read the `objects` dictionary, so parsing is decided at M3, when something needs the values.
-- `BuildIntent` joins strings by hand. That is fine for two fixed actions. It breaks if a name ever contains a quote, and M3 replaces it along with parsing.
-- `SimClient` keeps no copy of the world. It passes messages through, following the rule that the snapshot is the whole truth.
-
-### Check your understanding
-
-1. Stop Play, then press Play again without restarting the server. What `t` does the first snapshot show, and why not 0? Which rule in `docs/ARCHITECTURE.md` explains it?
-2. Experiment: outside Play mode, change `Url` in the Inspector to `ws://127.0.0.1:9999` and press Play. What appears? Why could you change it without editing code? Set it back afterwards.
-
-Say "M2 done" to get M3.
+Not yet covered (walk through when first used): parsing JSON into C# objects, packages (Package Manager), GameObject transforms and components from code, `Update` and the frame loop, the Input System, UI and text, prefabs, events and delegates, generics beyond `Task<T>` and `ArraySegment<T>`, `List<T>` and `Dictionary<K, V>`, properties (`{ get; set; }`), classes in separate files.
 
 ## Done
+
+### Block M2-C: Unity client (2026-10-05)
+
+- Justin wrote `unity/client/Assets/Scripts/SimClient.cs` (`BuildIntent`, `OnDestroy`, `ReceiveMessage`, `ReceiveLoop`, `Start`, `SendIntent`, `SendTick`) on the `SimClient` GameObject in `SampleScene`. Walked through one TODO at a time in chat, with the real code and a line-by-line explanation for each from `OnDestroy` onward.
+- Checkpoints passed in Play mode on `6000.0.84f1`: server off gives one yellow "Is the server running?" warning. Server on gives `Connected to ws://127.0.0.1:8765` and the `t: 0` snapshot. Send tick gives `t: 1` with `a` = `-0.7312715117751976`, then `t: 2` with `-0.03640403790073221`. Stopping Play prints nothing in Unity and `client left without closing` in Git Bash. Ctrl+C on the server during Play gives "Server closed the connection" in Unity.
+- Committed as `ff1996c` "Unity SimClient connection with snapshot logs and send tick mechanism" (script, both `.meta` files, scene, `SceneTemplateSettings.json`, docs) and pushed. CI run 37401893559 green.
+- Justin answered the per-TODO check questions in chat, with corrections taught for shadowing (compiles, fails at run time) and the `CS0029` location.
+- Open: the block's two "Check your understanding" questions (`t` after replaying Play without restarting the server; changing `Url` to port 9999), plus the `SendIntent` ones (why `socket == null` comes first; `t` after a Play restart).
 
 ### Block M2-B: WebSocket server (2026-10-03)
 
