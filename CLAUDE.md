@@ -19,7 +19,7 @@ Rules:
 3. Verify before reporting done. Python: `ruff check sim` and `pytest sim` pass, and new behavior has tests. Unity: Claude cannot press Play or see the Editor. Say exactly what Justin must click to confirm, and what he should see. Unity editor steps name the exact menu path or button.
 4. Prefer doing Unity setup through files Claude can edit (`Packages/manifest.json`, scripts, ScriptableObjects). Hand Justin only the editor actions that cannot be done from files.
 5. Ask Justin before decisions that are his: domain and scope, new milestones, big dependencies or license changes, anything that breaks Windows or macOS, anything published (pushes, releases). Small technical choices: pick the sensible default, record it, move on.
-6. Commit only when Justin asks. Use clear messages. Do not push without asking.
+6. Commit only when Justin asks. Use clear messages. Do not push without asking. Exception: a save-progress trigger is standing permission to commit and push (see "Save progress").
 7. Explain at the level of a manager: what changed, why, what to check, and any risk. Keep explanations short unless Justin asks for detail. He is still learning, so define jargon when it first matters.
 8. Science fidelity: when translating a paper's model, keep a traceable link from each equation and parameter in code to its source (paper, equation number, table). Note every deviation from the paper.
 9. Art is made by humans. The visuals are hand-drawn, black and white, 2.5D (flat sprites in a 3D scene, like West of Loathing and Don't Starve Together). Claude never generates or substitutes final art. Claude integrates the team's assets as Justin directs and uses plainly fake placeholders (grey quads, labeled boxes) until real art exists. Build the Unity side so art can be swapped without code changes. See `docs/VISION.md` and "Art assets" in `docs/ARCHITECTURE.md`.
@@ -45,7 +45,8 @@ When Justin says one, record everything done in the session so the next session 
 3. `docs/ROADMAP.md`: update milestone markers and the status line.
 4. `docs/ARCHITECTURE.md`: update only if a design choice changed.
 5. Machine facts learned (versions, paths, quirks) go in "Machine notes" in `docs/WORK_INSTRUCTIONS.md`.
-6. Report back a short list of which files changed.
+6. Commit and push, so the save reaches every computer. Stage the doc updates plus any finished, verified work from the session (`ruff check sim` and `pytest sim` pass). Do not commit half-finished or failing code: leave it uncommitted and say so in the session log and the report. Never commit `papers/` or secrets. Push to `origin`, then check that the CI run started.
+7. Report back a short list of which files changed, the commit hash, and whether the push succeeded.
 
 ## Session start
 
