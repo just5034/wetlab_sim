@@ -11,3 +11,5 @@ unity/client/[Uu]ser[Ss]ettings/
 unity/client/.vscode/
 unity/client/*.csproj
 unity/client/*.sln*
+# Reference papers (publisher PDFs, not redistributed)
+papers/

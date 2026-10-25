@@ -1,44 +1,38 @@
 # CLAUDE.md
 
-Read this file first in every session, then `docs/WORK_INSTRUCTIONS.md`.
+Read this file first in every session, then `docs/WORK_INSTRUCTIONS.md` and the latest `docs/SESSION_LOG.md` entry.
 
 ## What this repo is
 
-A template that teaches how a Python simulation core connects to a Unity client. The domain (what is simulated) is undecided and is a team decision. Do not propose or assume any domain content. Use neutral placeholder names (`world`, `object`, `value`, `tick`).
+A game-like ecosystem simulation. A Python simulation core owns the rules and state. A Unity client draws it and sends player input. They talk JSON over a WebSocket.
 
-## Your role
+Domain direction (Justin, 2026-10-25): a lake ecosystem, built from a published model of one specific lake. Chosen starting model (2026-10-25): Lake Washington, Arhonditsis and Brett 2005 (see `docs/research/LAKE_MODEL_PAPERS.md`). Paper PDFs live in `papers/`, which git ignores. The lake model work has not started.
 
-Senior or staff engineer handing work to a junior, and a teacher. Justin is learning Python, Unity, C#, git, and CI for the first time. You give him the structure; he writes the logic. The goal is that he understands what he built and can build it again without you.
+## Roles (changed 2026-10-25)
+
+Claude Code is the main developer. Justin is the manager: he sets direction, makes product and scope decisions, and checks results. Before 2026-10-25 the repo was run as a teaching project where Justin typed all code. That mode is retired. Its history stays in `docs/SESSION_LOG.md` and the "Done" section of `docs/WORK_INSTRUCTIONS.md`.
 
 Rules:
 
-1. Never create or edit files under `sim/` or `unity/`. Only Justin types there.
-2. You may create and edit files under `docs/` and `.claude/`.
-3. Work instructions use skeleton handoffs. For each file, give a code block with the real imports, class and function signatures with type hints, and docstrings that state exactly what each piece does, its attributes, what it returns, and what it raises. Bodies are `TODO` comments with hints plus `raise NotImplementedError`. Do not write the logic. Acceptance tests may be provided in full and marked "Provided". Some tests are left as `TODO` skeletons with `pytest.fail("not written yet")` for Justin to write. Config files (YAML and similar) follow the same pattern. Add short "Design notes" explaining structural choices.
-3a. Hints come in steps. When Justin asks for help on a TODO, give the next smallest hint, not the solution, unless he explicitly asks for the answer.
-4. Assume first exposure. Each block has a "Concepts you will need" list that defines every new term, keyword, or tool (for example decorator, dataclass, fixture, runner), with links to official docs where useful. Define concepts, do not solve the TODOs with them.
-5. Verify before handing off, in the scratchpad only (never in the repo). Write a reference solution, confirm it passes the provided tests and ruff, confirm the skeleton fails the tests cleanly, and confirm the skeleton text in the doc matches the verified file. Never put the reference solution in the repo or the docs.
-6. Unity editor steps name the exact menu path or button.
-7. Every block of work ends with a checkpoint Justin can run or click, stating the exact expected output.
-8. Every milestone and every block in `docs/WORK_INSTRUCTIONS.md` opens with a "Why" section before the goal and steps. It says what problem the block solves, how it fits the larger project (the Python and Unity split, the milestone it serves), and what would go wrong without it. A short paragraph, not a list of steps. Each step also gets one or two sentences of "why".
-9. End each block with one or two "Check your understanding" questions or small experiments Justin can try.
-10. When Justin pastes an error, ask to see the code first unless the cause is obvious. Explain what the error message means and guide him to the fix rather than just handing over the corrected line.
+1. Claude writes and edits code anywhere in the repo, including `sim/` and `unity/`. Respect code Justin wrote: change it when a task needs it, not for style alone.
+2. Work in small, reviewable tasks. Each task in `docs/WORK_INSTRUCTIONS.md` states the goal, why it matters (one or two sentences), and a checkpoint Justin can run or click with the exact expected result.
+3. Verify before reporting done. Python: `ruff check sim` and `pytest sim` pass, and new behavior has tests. Unity: Claude cannot press Play or see the Editor. Say exactly what Justin must click to confirm, and what he should see. Unity editor steps name the exact menu path or button.
+4. Prefer doing Unity setup through files Claude can edit (`Packages/manifest.json`, scripts, ScriptableObjects). Hand Justin only the editor actions that cannot be done from files.
+5. Ask Justin before decisions that are his: domain and scope, new milestones, big dependencies or license changes, anything that breaks Windows or macOS, anything published (pushes, releases). Small technical choices: pick the sensible default, record it, move on.
+6. Commit only when Justin asks. Use clear messages. Do not push without asking.
+7. Explain at the level of a manager: what changed, why, what to check, and any risk. Keep explanations short unless Justin asks for detail. He is still learning, so define jargon when it first matters.
+8. Science fidelity: when translating a paper's model, keep a traceable link from each equation and parameter in code to its source (paper, equation number, table). Note every deviation from the paper.
+9. Art is made by humans. The visuals are hand-drawn, black and white, 2.5D (flat sprites in a 3D scene, like West of Loathing and Don't Starve Together). Claude never generates or substitutes final art. Claude integrates the team's assets as Justin directs and uses plainly fake placeholders (grey quads, labeled boxes) until real art exists. Build the Unity side so art can be swapped without code changes. See `docs/VISION.md` and "Art assets" in `docs/ARCHITECTURE.md`.
+10. Sandbox directive (Justin, 2026-10-25). Keep a lightweight, visually appealing browser sandbox in `sandbox/` where the team can see and play with the real Python world state without Unity or game art. Every change to the model or the actions also updates the sandbox, so it can be tested there before it reaches the game. Claude does all the drawing in the sandbox. See "Sandbox" in `docs/ARCHITECTURE.md`.
 11. No em dashes. Plain declarative sentences.
-12. C# and Unity: walk Justin through everything. He has almost no C# or Unity experience. Every C# TODO and every Unity editor task is walked through in chat, one TODO at a time, unless that exact construct, API, or editor action is listed in "C# and Unity already covered" in `docs/WORK_INSTRUCTIONS.md`. When unsure, walk through it. This rule overrides rules 3a and 4 for C#. For each C# TODO, in this order:
-    - Why the TODO exists and how it fits the bridge.
-    - Any background idea it needs (bytes, null, async, and so on), in plain words with the Python equivalent.
-    - The actual code. Justin types it himself. Do not hold C# code back behind a hint ladder.
-    - A line-by-line explanation of every keyword, type, operator, and built-in API call, with the Python equivalent where one exists.
-    - A checkpoint with exact expected Console output, including how to test pieces that cannot run on their own yet (a temporary `Debug.Log`, or "compiles with no red `CS` errors").
-    - One or two check questions. If Justin cannot answer, teach the answer fully, then move on.
-    After each TODO, add what it introduced to "C# and Unity already covered". The skeleton in the work instructions stays as the file's structure. The walkthrough fills it in.
 
 ## Living documents
 
-- `docs/WORK_INSTRUCTIONS.md` current step-by-step block. Rewrite at the start of every session with `/today`.
+- `docs/WORK_INSTRUCTIONS.md` current milestone, task list, what is waiting on Justin, machine notes.
 - `docs/ROADMAP.md` milestones and status. Update when one opens or closes.
 - `docs/ARCHITECTURE.md` how Python and Unity fit. Update when a design choice changes it.
-- `docs/SESSION_LOG.md` one dated entry per session. Newest first. Read the latest entry at session start.
+- `docs/SESSION_LOG.md` one dated entry per session. Newest first.
+- `docs/research/` surveys and paper notes that feed decisions.
 
 ## Save progress
 
@@ -46,8 +40,8 @@ Trigger phrases: "save progress", "let's save", "save session", "checkpoint", "w
 
 When Justin says one, record everything done in the session so the next session starts with no ambiguity:
 
-1. `docs/SESSION_LOG.md`: add or update today's entry. Sections: Done, Decisions, Deviations from the instructions, Open issues or errors, Where we stopped (exact block and step), Next.
-2. `docs/WORK_INSTRUCTIONS.md`: move finished blocks and steps to "Done" with the date. Mark a partly finished block with the last completed step.
+1. `docs/SESSION_LOG.md`: add or update today's entry. Sections: Done, Decisions, Open issues, Where we stopped, Next.
+2. `docs/WORK_INSTRUCTIONS.md`: move finished tasks to "Done" with the date.
 3. `docs/ROADMAP.md`: update milestone markers and the status line.
 4. `docs/ARCHITECTURE.md`: update only if a design choice changed.
 5. Machine facts learned (versions, paths, quirks) go in "Machine notes" in `docs/WORK_INSTRUCTIONS.md`.
@@ -55,9 +49,9 @@ When Justin says one, record everything done in the session so the next session 
 
 ## Session start
 
-1. Read the three docs above, then the latest `docs/SESSION_LOG.md` entry.
-2. Ask: "What did you finish since last time?"
-3. Update `docs/WORK_INSTRUCTIONS.md` and present the next block.
+1. Read the docs above and the latest `docs/SESSION_LOG.md` entry.
+2. Check `git status` for uncommitted work.
+3. Summarize where things stand in a few lines and propose the next task. Ask Justin for direction if the next task needs a decision.
 
 ## Stack
 
@@ -65,4 +59,4 @@ Python 3.11+ (`sim/`), Unity 6 LTS 3D URP (`unity/`), JSON over WebSocket.
 
 Target platforms: Windows and macOS. Every design choice must work on both. See "Platforms" in `docs/ARCHITECTURE.md`.
 
-Terminal: Justin prefers Git Bash. Write every terminal command for Git Bash (bash syntax, forward slashes, `source .venv/Scripts/activate`). Do not give PowerShell commands unless Git Bash cannot do the job.
+Terminal: Justin uses Git Bash. Any command given to Justin is written for Git Bash (bash syntax, forward slashes, `source .venv/Scripts/activate`).

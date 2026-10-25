@@ -1,14 +1,33 @@
 # Work instructions
 
-Rewritten by `/today` each session. Finished blocks move to "Done".
+Current milestone, task list, and what is waiting on Justin. Claude Code does the coding. Justin directs and checks. See "Roles" in `CLAUDE.md`.
 
-Milestone: M2 Bridge closed 2026-10-05. M2-A, M2-B, and M2-C all done. Next: M3 Minimal client. Its blocks are not written yet. Run `/today` to write them.
+## Status (2026-10-25)
 
-Why M2: the M1 sim only runs inside Python. Unity is a separate program in a different language and cannot call Python functions. M2 builds the bridge: a small server that holds the one true world and speaks JSON over a WebSocket, and a Unity script that connects and prints what it hears. Nothing is drawn yet. Keeping M2 to "messages go back and forth and show up in the Console" means that when M3 adds visuals, any bug is in the drawing, not the plumbing. Without the bridge, Unity would have to copy the rules in C#, and two copies of the same rules always drift apart.
+M0 to M2 are done: Python sim core, tests and CI on Windows and macOS, WebSocket server, Unity client that connects and logs snapshots. The world is still a placeholder (named objects doing a random walk).
+
+The project is switching from a teaching repo (Justin typed every line) to Claude as main developer. Domain direction is a lake ecosystem, starting from one published model of one specific lake. Candidate papers: `docs/research/LAKE_MODEL_PAPERS.md`. Lake work has not started.
+
+## Waiting on Justin
+
+1. The second Lake Washington paper. The PDF in `papers/` is one of the two parts (to confirm on first read). The model description is Part I (pp. 140-178); the calibration with observed vs simulated figures is Part II (pp. 179-200). Both are needed for M3.
+
+Settled 2026-10-25: milestone order (M3 lake core, M4 sandbox, M5 Unity lake view, M6 builds), the stocks-and-fluxes framework, the sandbox directive, Lake Washington as the starting model, the art conventions, and Git LFS for art.
+
+## Next tasks
+
+M3 Lake core. Not started ("don't start yet", Justin 2026-10-25). Planned first tasks, once Justin says go:
+1. Read the paper. Write `docs/research/LAKE_WASHINGTON_MODEL.md`: every state variable, flux, equation, parameter with units and source table, and the forcing data needed.
+2. Framework core in `sim/labsim/`: stocks, fluxes, assembler, RK4 integrator, parameter files, with conservation and determinism tests.
+3. First slice of the model: one layer, one phytoplankton and one zooplankton group, plus nutrients.
 
 ## Machine notes
 
-Recorded so you do not re-check these every session.
+Recorded so nobody re-checks these every session.
+
+- Git LFS 3.7.1 is installed. `git lfs install --local` was run in this repo on 2026-10-25. Teammates run `git lfs install` once after cloning.
+- No PDF text tools on this machine (no poppler, no pypdf). For reading papers, install `pypdf` into a scratch venv, not into `sim`.
+- `docs/SESSION_LOG.md` once held a stray null byte, which made git treat it as binary. Fixed 2026-10-25. If `git diff` shows `Bin` for a doc again, look for a null byte.
 
 - Python 3.13.1 at `C:\Python313`. Clears the 3.11+ bar.
 - Unity 6 LTS is `6000.0.84f1`, already installed. Editors 2022.3.42f1 and 2022.3.62f1 are also present. Ignore them. Unity Hub may default the Editor Version dropdown to a 2022 editor, so always check it.
@@ -28,54 +47,9 @@ Recorded so you do not re-check these every session.
 - Server log lines start with `INFO:__main__:`, not `INFO:labsim.server:`, because `python -m labsim.server` runs the module as `__main__` and the logger uses `__name__`.
 - Unity's Active Input Handling is the new Input System only (`activeInputHandler: 1`). The old `Input.GetKeyDown` API throws in this project.
 
-## How these handoffs work
-
-Each block is written like a handoff from a senior engineer. You get the structure: file names, imports, class and function signatures, and docstrings that state exactly what each piece must do. The bodies are `TODO` comments with hints. You write the logic.
-
-Your loop for every file:
-1. Create the file yourself and type in the skeleton exactly, including docstrings.
-2. Read the docstrings and TODOs. They are the requirements.
-3. Replace each `raise NotImplementedError` (or `pytest.fail(...)`) with your code. Delete each `TODO` and `Hint` comment once it is done. Keep the docstrings.
-4. Run the tests. Red means not done yet. Read the failure from the bottom up.
-
-Rules of thumb:
-- Tests marked "Provided" are the acceptance criteria. Do not edit them to make them pass; change your code instead.
-- While TODOs remain, `ruff check sim` will report imports as unused (`F401`). That is expected. Never run `ruff check --fix` on an unfinished skeleton: it deletes those imports.
-- Stuck for more than 15 minutes on one TODO? Ask me for the next hint on that TODO. Hints come in steps, from a nudge to nearly the answer, so you only take as much as you need.
-- When a file passes, run `/review sim/labsim/<file>.py` for feedback on style and correctness.
-
-## Next: M3 Minimal client
-
-Not written yet. `/today` writes the M3 blocks at the start of the next session. M3 is the first block with real C# logic beyond plumbing (JSON parsing, a scene object, input), so every C# TODO is walked through in chat per `CLAUDE.md` rule 12.
-
-## C# and Unity already covered
-
-Rule 12 in `CLAUDE.md`: anything not on this list gets a full walkthrough in chat (why, background, the code, line by line, checkpoint, check questions). Anything on this list can be referenced briefly. Add to it after each C# TODO.
-
-Covered in M2-C (2026-10-03 to 2026-10-05), all in `unity/client/Assets/Scripts/SimClient.cs`:
-- C# vs Python basics: `using` as import, braces instead of indentation, `;` ends statements, types before names, `public` / `private`, `///` doc comments vs `//` comments, case sensitivity (`cancel` vs `Cancel`).
-- Classes and fields vs local variables. Fields start as `null`. Locals must be assigned before use (`CS0165`). Shadowing: `var x = ...` in a method makes a new local that hides the field. Assign a field with `x = ...`.
-- `string` concatenation with `+`, escaped quotes `\"` inside strings (`BuildIntent`).
-- `static` methods: use no fields, called by name.
-- `void`, `return;`, `return null;`, `return value;`.
-- `null`, `NullReferenceException`, the null-conditional `?.`.
-- `if`, `==`, `!=`, `!`, `||` with short-circuit order (`socket == null` first).
-- `while` and `do { } while (...);`, and why `do`/`while` fits "read, then check".
-- Arrays: `new byte[8192]`, `byte[]`, `var`.
-- Bytes and UTF-8: `Encoding.UTF8.GetBytes` and `GetString`. `MemoryStream`, `stream.Write(buffer, 0, count)`, `ToArray()`.
-- `using var` for automatic cleanup (like Python `with`).
-- `async`, `await`, `Task`, `Task<string>`, `async void` (only for methods Unity calls: `Start`, context menu items). Missing `await` gives `CS0029`.
-- `try` / `catch (Exception e)`, `e.Message`.
-- `new` to create objects. `new Uri(url)`.
-- `CancellationTokenSource`, `.Token`, `.Cancel()`, `.IsCancellationRequested`. Cancel before Dispose.
-- `ClientWebSocket`: `ConnectAsync`, `ReceiveAsync` (+ `WebSocketReceiveResult`: `MessageType`, `Count`, `EndOfMessage`), `SendAsync` (four arguments), `State` / `WebSocketState.Open`, `Dispose()`. `ArraySegment<byte>` as packaging.
-- WebSocket close handshake vs abrupt disconnect ("client left without closing").
-- Unity: `MonoBehaviour`, Unity calls `Start` and `OnDestroy` by name, `[SerializeField]`, `[ContextMenu]` and the Inspector ⋮ menu, `Debug.Log` / `Debug.LogWarning`, reading the Console and stack traces (including `<Start>d__N:MoveNext`), Play and stop, temporary `Debug.Log` as a checkpoint, compile errors `CS0104`, `CS0162`, `CS1002`.
-- Unity editor: Create a folder and script in the Project window, create an empty GameObject, attach a script, `Window > General > Console`, `.meta` files must be committed with their asset.
-
-Not yet covered (walk through when first used): parsing JSON into C# objects, packages (Package Manager), GameObject transforms and components from code, `Update` and the frame loop, the Input System, UI and text, prefabs, events and delegates, generics beyond `Task<T>` and `ArraySegment<T>`, `List<T>` and `Dictionary<K, V>`, properties (`{ get; set; }`), classes in separate files.
-
 ## Done
+
+History from the teaching phase (2026-09-21 to 2026-10-06), when Justin wrote the code from skeleton handoffs.
 
 ### Block M2-C: Unity client (2026-10-05)
 
