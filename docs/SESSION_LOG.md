@@ -27,7 +27,9 @@ One entry per session, newest first. Written on "save progress". Read the latest
 - Teaching-era carry-overs (unanswered check questions, no `/review`) are dropped. `SendIntent` still has no `try`/`catch` around `SendAsync`; fix when Unity work resumes in M5.
 
 ### Where we stopped
-- Docs restructured and committed. M3 not started.
+- Docs restructured, committed as `6ce7a66`, pushed to `origin/main`. CI run 40224392016 green. A follow-up commit added "New computer setup" to `README.md`.
+- M3 not started. Justin has not said go.
+- Context lives in the repo, not in Claude's local memory (`~/.claude/`, per machine). Everything needed to continue is in `CLAUDE.md` and `docs/`. The paper PDF is not in git: copy `papers/` by hand to a new computer.
 
 ### Next
 - Justin says go on M3. First task: read the paper and write `docs/research/LAKE_WASHINGTON_MODEL.md`.
